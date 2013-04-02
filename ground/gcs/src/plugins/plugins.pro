@@ -305,6 +305,11 @@ plugin_boards_stm.subdir = boards_stm
 plugin_boards_stm.depends = plugin_coreplugin
 SUBDIRS += plugin_boards_stm
 
+# Afrodevices boards
+plugin_boards_naze.subdir = boards_naze
+plugin_boards_naze.depends = plugin_coreplugin
+SUBDIRS += plugin_boards_naze
+
 ## Plugin by E. Lafargue for the Junsi Powerlog, do not
 ## remove, please.
 ##

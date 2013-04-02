@@ -32,6 +32,10 @@ public:
                // for firmware compatibility and the filename path that would break
                return QString("CopterControl");
                break;
+           case 0x0503: //Naze32
+           case 0x0504:
+               return QString("Naze32");
+               break;
            case 0x0903: //RevoMini
                return QString("RevoMini");
                break;
@@ -58,7 +62,7 @@ public:
                return QString("Quanton");
                break;
            default:
-               return QString("");
+               return QString("Unknown");
                break;
            }
        }

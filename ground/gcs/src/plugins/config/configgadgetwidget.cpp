@@ -207,7 +207,8 @@ void ConfigGadgetWidget::onAutopilotConnect() {
             qwd = new ConfigCCHWWidget(this);
             ftw->insertTab(ConfigGadgetWidget::hardware, qwd, *icon, QString("Hardware"));
             ftw->setCurrentIndex(ConfigGadgetWidget::hardware);
-        } else if ((board & 0xff00) == 0x0900 || // RevoMini
+        } else if ((board & 0xff00) == 0x0500 || // Naze32
+                   (board & 0xff00) == 0x0900 || // RevoMini
                    (board & 0xff00) == 0x7F00 || // Revolution
                    (board & 0xff00) == 0x8100 || // Freedom
                    (board & 0xff00) == 0x8300 || // FlyingF3
