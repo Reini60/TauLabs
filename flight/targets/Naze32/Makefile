@@ -60,7 +60,7 @@ USE_GPS ?= NO
 USE_TXPID ?= YES
 USE_I2C ?= YES
 USE_USB ?= NO
-USE_ALTITUDE ?= NO
+USE_ALTITUDE ?= YES
 USE_AUTOTUNE ?= YES
 TEST_FAULTS ?= NO
 USE_UAVOMAVLINKBRIDGE ?= NO
@@ -81,7 +81,7 @@ OPTMODULES += TxPID
 endif
 ifeq ($(USE_ALTITUDE), YES)
 ifeq ($(USE_I2C), YES)
-OPTMODULES += Altitude
+OPTMODULES += AltitudeHold
 else
 $(error "Altitude module (USE_ALTITUDE=YES) requires i2c (USE_I2C=YES)")
 endif
@@ -228,6 +228,9 @@ SRC += $(OPUAVSYNTHDIR)/airspeedactual.c
 SRC += $(OPUAVSYNTHDIR)/inertialsensorsettings.c
 SRC += $(OPUAVSYNTHDIR)/flightbatterystate.c
 SRC += $(OPUAVSYNTHDIR)/flightbatterysettings.c
+SRC += $(OPUAVSYNTHDIR)/altholdsmoothed.c
+SRC += $(OPUAVSYNTHDIR)/altitudeholdsettings.c
+SRC += $(OPUAVSYNTHDIR)/altitudeholddesired.c
 endif
 
 ## PIOS Hardware (STM32F10x)
@@ -273,6 +276,7 @@ endif
 SRC += $(PIOSCOMMON)/pios_crc.c
 SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
 SRC += $(PIOSCOMMON)/pios_mpu6050.c
+SRC += $(PIOSCOMMON)/pios_ms5611.c
 SRC += $(PIOSCOMMON)/pios_com.c
 SRC += $(PIOSCOMMON)/pios_rcvr.c
 SRC += $(PIOSCOMMON)/pios_sbus.c
