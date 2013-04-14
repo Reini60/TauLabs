@@ -60,6 +60,17 @@ uintptr_t pios_com_debug_id;
 uintptr_t pios_com_telem_rf_id;
 
 /**
+ * Configuration for the MS5611 chip
+ */
+#if defined(PIOS_INCLUDE_MS5611)
+#include "pios_ms5611_priv.h"
+static const struct pios_ms5611_cfg pios_ms5611_cfg = {
+	.oversampling = MS5611_OSR_512,
+	.temperature_interleaving = 1,
+};
+#endif /* PIOS_INCLUDE_MS5611 */
+
+/**
  * Configuration for MPU6050 chip
  */
 #if defined(PIOS_INCLUDE_MPU6050)
@@ -306,9 +317,16 @@ void PIOS_Board_Init(void) {
 
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
 
+#if defined(PIOS_INCLUDE_MS5611) && defined(PIOS_INCLUDE_I2C)
+	PIOS_MS5611_Init(&pios_ms5611_cfg, pios_i2c_adapter_id);
+	//init_test = PIOS_MS5611_Test();
+	PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_MS5611 */
+
 #if defined(PIOS_INCLUDE_MPU6050) && defined(PIOS_INCLUDE_I2C)
 	PIOS_MPU6050_Init(pios_i2c_adapter_id, PIOS_MPU6050_I2C_ADD_A0_LOW, &pios_mpu6050_cfg);
 	//init_test = PIOS_MPU6050_Test();
+	PIOS_WDG_Clear();
 
 	uint8_t hw_gyro_range;
 	HwNaze32GyroRangeGet(&hw_gyro_range);
@@ -343,32 +361,7 @@ void PIOS_Board_Init(void) {
 			PIOS_MPU6050_SetAccelRange(PIOS_MPU60X0_ACCEL_16G);
 			break;
 	}
-/*	
-	uint8_t hw_mpu6050_rate;
-	HwNaze32MPU6050RateGet(&hw_mpu6050_rate);
-	uint16_t hw_mpu6050_divisor = \
-		(hw_mpu6050_rate == HWNAZE32_MPU6050RATE_500) ? 15 : \
-		(hw_mpu6050_rate == HWNAZE32_MPU6050RATE_666) ? 11 : \
-		(hw_mpu6050_rate == HWNAZE32_MPU6050RATE_1000) ? 7 : \
-		(hw_mpu6050_rate == HWNAZE32_MPU6050RATE_2000) ? 3 : \
-		(hw_mpu6050_rate == HWNAZE32_MPU6050RATE_4000) ? 1 : \
-		(hw_mpu6050_rate == HWNAZE32_MPU6050RATE_8000) ? 0 : \
-		15;
-	PIOS_MPU6050_SetDivisor(hw_mpu6050_divisor);
 
-	uint8_t hw_dlpf;
-	HwNaze32MPU6050DLPFGet(&hw_dlpf);
-	uint16_t hw_mpu6050_dlpf = \
-		(hw_dlpf == HWNAZE32_MPU6050DLPF_256) ? PIOS_MPU60X0_LOWPASS_256_HZ : \
-		(hw_dlpf == HWNAZE32_MPU6050DLPF_188) ? PIOS_MPU60X0_LOWPASS_188_HZ : \
-		(hw_dlpf == HWNAZE32_MPU6050DLPF_98) ? PIOS_MPU60X0_LOWPASS_98_HZ : \
-		(hw_dlpf == HWNAZE32_MPU6050DLPF_42) ? PIOS_MPU60X0_LOWPASS_42_HZ : \
-		(hw_dlpf == HWNAZE32_MPU6050DLPF_20) ? PIOS_MPU60X0_LOWPASS_20_HZ : \
-		(hw_dlpf == HWNAZE32_MPU6050DLPF_10) ? PIOS_MPU60X0_LOWPASS_10_HZ : \
-		(hw_dlpf == HWNAZE32_MPU6050DLPF_5) ? PIOS_MPU60X0_LOWPASS_5_HZ : \
-		PIOS_MPU60X0_LOWPASS_256_HZ;
-	PIOS_MPU6050_SetLPF(hw_mpu6050_dlpf);
-*/
 #endif /* PIOS_INCLUDE_MPU6050 */
 
 	PIOS_GPIO_Init();
