@@ -60,7 +60,7 @@ USE_GPS ?= NO
 USE_TXPID ?= YES
 USE_I2C ?= YES
 USE_USB ?= NO
-USE_ALTITUDE ?= YES
+USE_ALTITUDE ?= NO
 USE_AUTOTUNE ?= YES
 TEST_FAULTS ?= NO
 USE_UAVOMAVLINKBRIDGE ?= NO
@@ -225,12 +225,12 @@ SRC += $(OPUAVSYNTHDIR)/homelocation.c
 SRC += $(OPUAVSYNTHDIR)/positionactual.c
 SRC += $(OPUAVSYNTHDIR)/velocityactual.c
 SRC += $(OPUAVSYNTHDIR)/airspeedactual.c
-SRC += $(OPUAVSYNTHDIR)/inertialsensorsettings.c
+SRC += $(OPUAVSYNTHDIR)/sensorsettings.c
 SRC += $(OPUAVSYNTHDIR)/flightbatterystate.c
 SRC += $(OPUAVSYNTHDIR)/flightbatterysettings.c
-SRC += $(OPUAVSYNTHDIR)/altholdsmoothed.c
-SRC += $(OPUAVSYNTHDIR)/altitudeholdsettings.c
-SRC += $(OPUAVSYNTHDIR)/altitudeholddesired.c
+##SRC += $(OPUAVSYNTHDIR)/altholdsmoothed.c
+##SRC += $(OPUAVSYNTHDIR)/altitudeholdsettings.c
+##SRC += $(OPUAVSYNTHDIR)/altitudeholddesired.c
 endif
 
 ## PIOS Hardware (STM32F10x)
@@ -276,7 +276,7 @@ endif
 SRC += $(PIOSCOMMON)/pios_crc.c
 SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
 SRC += $(PIOSCOMMON)/pios_mpu6050.c
-SRC += $(PIOSCOMMON)/pios_ms5611.c
+##SRC += $(PIOSCOMMON)/pios_ms5611.c
 SRC += $(PIOSCOMMON)/pios_com.c
 SRC += $(PIOSCOMMON)/pios_rcvr.c
 SRC += $(PIOSCOMMON)/pios_sbus.c
