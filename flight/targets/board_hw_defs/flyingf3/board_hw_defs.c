@@ -346,6 +346,16 @@ void PIOS_SPI_external_irq_handler(void)
 	PIOS_SPI_IRQ_Handler(pios_spi_external_id);
 }
 
+/**
+ * Configuration for the MS5611 chip on SPI
+ */
+#if defined(PIOS_INCLUDE_MS5611_SPI)
+#include "pios_ms5611_spi_priv.h"
+static const struct pios_ms5611_cfg pios_ms5611_cfg = {
+	.oversampling             = MS5611_OSR_4096,
+	.temperature_interleaving = 1,
+};
+#endif /* PIOS_INCLUDE_MS5611_SPI */
 
 #endif	/* PIOS_INCLUDE_SPI */
 

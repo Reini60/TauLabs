@@ -1140,6 +1140,10 @@ void PIOS_Board_Init(void) {
 			PIOS_Assert(0);
 		PIOS_ADC_Init(&pios_internal_adc_id, &pios_internal_adc_driver, internal_adc_id);
 #endif
+#if defined(PIOS_INCLUDE_SPI) && defined(PIOS_INCLUDE_MS5611_SPI)
+		if (PIOS_MS5611_Init(pios_spi_external_id, 2, &pios_ms5611_cfg) != 0)
+			PIOS_Assert(0);
+#endif	/* PIOS_INCLUDE_SPI && PIOS_INCLUDE_MS5611_SPI */
 		break;
 	case HWFLYINGF3_SHIELD_NONE:
 		break;
