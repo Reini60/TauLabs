@@ -1145,6 +1145,12 @@ void PIOS_Board_Init(void) {
 			PIOS_Assert(0);
 #endif	/* PIOS_INCLUDE_SPI && PIOS_INCLUDE_MS5611_SPI */
 		break;
+	case HWFLYINGF3_SHIELD_CHEBUZZ:
+#if defined(PIOS_INCLUDE_I2C) && defined(PIOS_INCLUDE_MS5611)
+		if (PIOS_MS5611_Init(&pios_ms5611_cfg, pios_i2c_external_id) != 0)
+			PIOS_Assert(0);
+#endif	/* PIOS_INCLUDE_I2C && PIOS_INCLUDE_MS5611 */
+		break;
 	case HWFLYINGF3_SHIELD_NONE:
 		break;
 	default:
