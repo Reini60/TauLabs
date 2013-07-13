@@ -76,6 +76,8 @@ struct ms5611_dev {
 	xTaskHandle task;
 	xQueueHandle queue;
 
+	uint32_t raw_pressure;
+	uint32_t raw_temperature;
 	int64_t pressure_unscaled;
 	int64_t temperature_unscaled;
 	uint16_t calibration[6];
@@ -309,6 +311,7 @@ static int32_t PIOS_MS5611_ReadADC(void)
 			return -1;
 
 		raw_temperature = (data[0] << 16) | (data[1] << 8) | data[2];
+		dev->raw_temperature = raw_temperature;
 
 		delta_temp = (int32_t)raw_temperature - (dev->calibration[4] << 8);
 		temperature = 2000 + ((delta_temp * dev->calibration[5]) >> 23);
@@ -328,6 +331,7 @@ static int32_t PIOS_MS5611_ReadADC(void)
 			return -1;
 
 		raw_pressure = (data[0] << 16) | (data[1] << 8) | (data[2] << 0);
+		dev->raw_pressure = raw_pressure;
 
 		offset = ((int64_t)dev->calibration[1] << 16) + (((int64_t)dev->calibration[3] * delta_temp) >> 7);
 		sens = (int64_t)dev->calibration[0] << 15;
@@ -452,6 +456,8 @@ static void PIOS_MS5611_Task(void *parameters)
 
 		// Compute the altitude from the pressure and temperature and send it out
 		struct pios_sensor_baro_data data;
+		data.raw_temperature = dev->raw_temperature;
+		data.raw_pressure = dev->raw_pressure;
 		data.temperature = ((float) dev->temperature_unscaled) / 100.0f;
 		data.pressure = ((float) dev->pressure_unscaled) / 1000.0f;
 		data.altitude = 44330.0f * (1.0f - powf(data.pressure / MS5611_P0, (1.0f / 5.255f)));

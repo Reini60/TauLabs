@@ -350,6 +350,8 @@ static void update_baro(struct pios_sensor_baro_data *baro)
 		return;
 
 	BaroAltitudeData baroAltitude;
+	baroAltitude.RawTemperature = baro->raw_temperature;
+	baroAltitude.RawPressure = baro->raw_pressure;
 	baroAltitude.Temperature = baro->temperature;
 	baroAltitude.Pressure = baro->pressure;
 	baroAltitude.Altitude = baro->altitude;

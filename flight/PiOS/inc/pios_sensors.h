@@ -60,6 +60,8 @@ struct pios_sensor_mag_data {
 
 //! Pios sensor structure for generic baro data
 struct pios_sensor_baro_data {
+	uint32_t raw_temperature;
+	uint32_t raw_pressure;
 	float temperature;
 	float pressure;
 	float altitude;
