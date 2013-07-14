@@ -177,7 +177,7 @@ int32_t PIOS_MS5611_SPI_Init(uint32_t spi_id, uint32_t slave_num, const struct p
 }
 
 /**
- * Claim the MS5611 device semaphore, SPI bus and select this chip.
+ * Claim the MS5611 device semaphore
  * \return 0 if no error
  * \return -1 if timeout before claiming semaphore
  * \return -2 if failed to claim SPI bus
@@ -204,6 +204,37 @@ static int32_t PIOS_MS5611_ClaimDevice(void)
 	PIOS_IRQ_Enable();
 #endif
 
+	return 0;
+}
+
+/**
+ * @brief Release the SPI bus for the baro communications and end the transaction
+ * @return 0 if successful
+ */
+static int32_t PIOS_MS5611_ReleaseDevice(void)
+{
+	PIOS_Assert(PIOS_MS5611_Validate(dev) == 0);
+
+#if defined(PIOS_INCLUDE_FREERTOS)
+	xSemaphoreGive(dev->busy);
+#else
+	PIOS_IRQ_Disable();
+	dev->busy = false;
+	PIOS_IRQ_Enable();
+#endif
+
+	return 0;
+}
+
+/**
+ * @brief Claim the SPI bus for the baro communications and select this chip
+ * @return 0 if successful, -1 for invalid device, -2 if unable to claim bus
+ */
+static int32_t PIOS_MS5611_ClaimBus(void)
+{
+	if (PIOS_MS5611_Validate(dev) != 0)
+		return -1;
+
 	if (PIOS_SPI_ClaimBus(dev->spi_id) != 0)
 		return -2;
 
@@ -216,23 +247,14 @@ static int32_t PIOS_MS5611_ClaimDevice(void)
  * @brief Release the SPI bus for the baro communications and end the transaction
  * @return 0 if successful
  */
-static int32_t PIOS_MS5611_ReleaseDevice(void)
+static int32_t PIOS_MS5611_ReleaseBus(void)
 {
-	PIOS_Assert(PIOS_MS5611_Validate(dev) == 0);
+	if (PIOS_MS5611_Validate(dev) != 0)
+		return -1;
 
 	PIOS_SPI_RC_PinSet(dev->spi_id, dev->slave_num, 1);
 
-	PIOS_SPI_ReleaseBus(dev->spi_id);
-
-#if defined(PIOS_INCLUDE_FREERTOS)
-	xSemaphoreGive(dev->busy);
-#else
-	PIOS_IRQ_Disable();
-	dev->busy = false;
-	PIOS_IRQ_Enable();
-#endif
-
-	return 0;
+	return PIOS_SPI_ReleaseBus(dev->spi_id);
 }
 
 /**
@@ -360,19 +382,35 @@ static int32_t PIOS_MS5611_ReadADC(void)
 * \param[in] len number of bytes which should be read
 * \return 0 if operation was successful
 * \return -1 if dev is invalid
-* \return -2 if error during SPI transfer
+* \return -2 if failed to claim SPI bus
+* \return -3 if error during SPI transfer
 */
 static int32_t PIOS_MS5611_Read(uint8_t address, uint8_t *buffer, uint8_t len)
 {
 	if (PIOS_MS5611_Validate(dev) != 0)
 		return -1;
 
-	PIOS_SPI_TransferByte(dev->spi_id, address);
-	if (PIOS_SPI_TransferBlock(dev->spi_id, NULL, buffer, len, NULL) < 0) {
+	if (PIOS_MS5611_ClaimBus() != 0)
 		return -2;
+
+	int32_t rc;
+
+	if (PIOS_SPI_TransferByte(dev->spi_id, address) < 0) {
+		rc = -3;
+		goto out;
 	}
 
-	return 0;
+	if (PIOS_SPI_TransferBlock(dev->spi_id, NULL, buffer, len, NULL) < 0) {
+		rc = -3;
+		goto out;
+	}
+
+	rc = 0;
+
+out:
+	PIOS_MS5611_ReleaseBus();
+
+	return rc;
 }
 
 /**
@@ -381,16 +419,29 @@ static int32_t PIOS_MS5611_Read(uint8_t address, uint8_t *buffer, uint8_t len)
 * \param[in] buffer source buffer
 * \return 0 if operation was successful
 * \return -1 if dev is invalid
-* \return -2 if error during SPI transfer
+* \return -2 if failed to claim SPI bus
+* \return -3 if error during SPI transfer
 */
 static int32_t PIOS_MS5611_WriteCommand(uint8_t command)
 {
 	if (PIOS_MS5611_Validate(dev) != 0)
 		return -1;
 
-	PIOS_SPI_TransferByte(dev->spi_id, command);
+	if (PIOS_MS5611_ClaimBus() != 0)
+		return -2;
 
-	return 0;
+	int32_t rc;
+	if (PIOS_SPI_TransferByte(dev->spi_id, command) < 0) {
+		rc = -3;
+		goto out;
+	}
+
+	rc = 0;
+
+out:
+	PIOS_MS5611_ReleaseBus();
+
+	return rc;
 }
 
 /**
